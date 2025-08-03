@@ -1,8 +1,9 @@
 #pragma once
 #include <JuceHeader.h>
 
-#include "Source/PingerKnobComponent.h"
+#include "PingerKnobComponent.h"
 #include "PluginProcessor.h"
+
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor
 {

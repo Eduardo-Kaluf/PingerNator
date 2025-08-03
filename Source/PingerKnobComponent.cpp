@@ -1,6 +1,5 @@
 #include "PingerKnobComponent.h"
 
-
 PingerKnobComponent::PingerKnobComponent()
 {
     knob.setRange (0, 100);
