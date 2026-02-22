@@ -1,36 +1,45 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#define SLIDER_X 256
+#define SLIDER_Y 256
+
+#define cornerLeftX  getWidth()  / 4 - SLIDER_X / 2
+#define cornerRightX getWidth()  / 4 * 3 - SLIDER_X / 2
+#define cornerLeftY  getHeight() / 4 - SLIDER_Y / 2
+#define cornerRightY getHeight() / 4 * 3 - SLIDER_Y / 2
+
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+    : AudioProcessorEditor(&p),
+      processorRef(p),
+      saturationKnob (p.apvts, "SATURATION", "Saturation"),
+      bitcrushKnob   (p.apvts, "BIT_CRUSH",  "Bitcrush"),
+      distortionKnob (p.apvts, "DISTORTION", "Distortion"),
+      fuzzKnob       (p.apvts, "FUZZ",       "Fuzz")
 {
-    // Connect the knob to the "LEVEL" parameter in the processor
-    levelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-        processorRef.apvts, "LEVEL", pingerKnob.getSlider());
+    addAndMakeVisible(saturationKnob);
+    addAndMakeVisible(bitcrushKnob);
+    addAndMakeVisible(distortionKnob);
+    addAndMakeVisible(fuzzKnob);
 
-    addAndMakeVisible (pingerKnob);
-
-    setSize (600, 400);
+    setSize(512, 512);
 }
 
-AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
-= default;
+AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() = default;
 
 //==============================================================================
-void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
+void AudioPluginAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.setFont (juce::FontOptions (16.0f));
-    g.setColour (juce::Colours::white);
-    g.drawText ("PingerNator", getWidth() / 2 - 100, 20, 200, 20, juce::Justification::centred, true);
-
-    // You can now get the value directly from the knob or the parameter
-    auto valueText = juce::String(pingerKnob.getValue(), 2);
-    g.drawText (valueText, getWidth() / 2 - 100, 250, 200, 20, juce::Justification::centred, true);
+    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    g.setFont (FontOptions (16.0f));
+    g.setColour (Colours::white);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    pingerKnob.setBounds (getWidth() / 2 - 100, 100, 200, 150);
+    saturationKnob.setBounds(cornerLeftX, cornerLeftY, 256, 256);
+    bitcrushKnob.setBounds(cornerLeftX, cornerRightY, 256, 256);
+    distortionKnob.setBounds(cornerRightX, cornerLeftY, 256, 256);
+    fuzzKnob.setBounds(cornerRightX, cornerRightY, 256, 256);
 }

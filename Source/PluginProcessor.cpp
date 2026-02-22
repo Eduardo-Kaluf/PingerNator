@@ -1,4 +1,6 @@
 #include "PluginProcessor.h"
+
+#include <cmath>
 #include "PluginEditor.h"
 
 //==============================================================================
@@ -18,7 +20,11 @@ apvts (*this, nullptr, "Parameters", createParameterLayout())
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("LEVEL", "Pinger Level", 0.0f, 100.0f, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("SATURATION", "Pinger Level", 0.0f, 100.0f, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("BIT_CRUSH", "Pinger Level", 0.0f, 100.0f, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("DISTORTION", "Pinger Level", 0.0f, 100.0f, 0.0f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>("FUZZ", "Pinger Level", 0.0f, 100.0f, 0.0f));
+
     return { params.begin(), params.end() };
 }
 
@@ -128,6 +134,15 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
+float AudioPluginAudioProcessor::fuzzEffect(float level) {
+    if (level > 0.8f)
+        return 0.8f;
+    if (level < -0.8f)
+        return -0.8f;
+
+    return level;
+}
+
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
@@ -140,18 +155,42 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.clear (i, 0, buffer.getNumSamples());
 
     // Get the parameter value from the APVTS
-    auto level = apvts.getRawParameterValue ("LEVEL")->load();
+    const auto saturation = apvts.getRawParameterValue ("SATURATION")->load();
+    const auto bitcrush = apvts.getRawParameterValue ("BIT_CRUSH")->load();
+    const auto distort = apvts.getRawParameterValue ("DISTORTION")->load();
+    const auto fuzz = apvts.getRawParameterValue ("FUZZ")->load();
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         auto* inputData = buffer.getReadPointer(channel);
 
-        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-        {
-            auto inSample = inputData[sample];
-            // Your audio effect logic
-            channelData[sample] = inSample + (inSample * inSample * inSample * level);
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+            float inSample = inputData[sample];
+
+            // SATURATION EFFECT
+            if (saturation > 1.0f) {
+                inSample = std::tanh(inSample * saturation);
+            }
+
+            // DISTORTION EFFECT
+            if (distort > 0.0f) {
+                inSample = inSample * inSample * inSample * distort * 2.5f;
+            }
+
+            // FUZZ EFFECT
+            if (fuzz > 0.0f) {
+                inSample = fuzzEffect(inSample * fuzz * 20.0f);
+            }
+
+            // BIT CRUSH EFFECT
+            const float totalSteps = powf(2, bitcrush);
+            const float distanceFromPreviousStep = fmodf(inSample, 1 / totalSteps);
+
+            const float finalSignal = bitcrush > 0.0f ? inSample - distanceFromPreviousStep : inSample;
+
+            // Audio Output
+            channelData[sample] = finalSignal;
         }
     }
 }

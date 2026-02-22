@@ -48,6 +48,8 @@ private:
     juce::Random random;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
+    static float fuzzEffect(float level);
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

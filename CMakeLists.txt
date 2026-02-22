@@ -4,35 +4,32 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(PingerNator VERSION 0.0.1)
 
-add_subdirectory(JUCE)                    # If you've put JUCE in a subdirectory called JUCE
+add_subdirectory(JUCE)
 
 juce_add_plugin(PingerNator
-    # VERSION ...                               # Set this if the plugin version is different to the project version
-    # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
-    # ICON_SMALL ...
-    COMPANY_NAME "KALUF"                          # Specify the name of the plugin's author
-    BUNDLE_ID "com.kaluf.PingerNator"
-    IS_SYNTH FALSE                       # Is this a synth or an effect?
-    # NEEDS_MIDI_INPUT TRUE/FALSE               # Does the plugin need midi input?
-    # NEEDS_MIDI_OUTPUT TRUE/FALSE              # Does the plugin need midi output?
-    IS_MIDI_EFFECT FALSE                 # Is this plugin a MIDI effect?
-    # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    # Does the editor need keyboard focus?
-    # COPY_PLUGIN_AFTER_BUILD TRUE/FALSE        # Should the plugin be installed to a default location after building?
-    PLUGIN_MANUFACTURER_CODE Kalu               # A four-character manufacturer id with at least one upper-case character
-    PLUGIN_CODE Kaka                            # A unique four-character plugin id with exactly one upper-case character
-                                                # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
-    FORMATS VST3 Standalone                  # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
-    PRODUCT_NAME "PingerNator")        # The name of the final executable, which can differ from the target name
-
+    VERSION                     1.0.0
+    ICON_BIG                    ./assets/pinger.png
+    ICON_SMALL                  ./assets/pinger.png
+    COMPANY_NAME                "KALUF"
+    BUNDLE_ID                   "com.kaluf.PingerNator"
+    IS_SYNTH                    FALSE
+    NEEDS_MIDI_INPUT            FALSE
+    NEEDS_MIDI_OUTPUT           FALSE
+    IS_MIDI_EFFECT              FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+    COPY_PLUGIN_AFTER_BUILD     FALSE
+    PLUGIN_MANUFACTURER_CODE    Kalu
+    PLUGIN_CODE                 Kaka
+    FORMATS VST3                Standalone
+    PRODUCT_NAME                "PingerNator")
 
 juce_generate_juce_header(PingerNator)
-
 
 target_sources(PingerNator
     PRIVATE
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
-        Source/PingerKnobComponent.cpp)
+        Source/PingerKnob.cpp)
 
 target_compile_definitions(PingerNator
     PUBLIC
